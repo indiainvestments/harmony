@@ -191,6 +191,7 @@ export class SlashClient extends HarmonyEventEmitter<SlashClientEvents> {
   private _getCommand(
     i: SlashCommandInteraction
   ): SlashCommandHandler | undefined {
+    console.log("checking for commands in handler");
     return this.getHandlers().find((e) => {
       const hasGroupOrParent = e.group !== undefined || e.parent !== undefined
       const groupMatched =
@@ -230,9 +231,11 @@ export class SlashClient extends HarmonyEventEmitter<SlashClientEvents> {
     console.log("now processing interaction in function", interaction, interaction.type);
     if (interaction.type !== InteractionType.APPLICATION_COMMAND) return
 
-    const cmd =
-      this._getCommand(interaction as SlashCommandInteraction) ??
-      this.getHandlers().find((e) => e.name === '*')
+    let cmd = this._getCommand(interaction as SlashCommandInteraction)
+    if (cmd === undefined) {
+      console.log("initial command search undefined, falling back to default error reply command", this.getHandlers());
+      cmd = this.getHandlers().find((e) => e.name === '*')
+    }
     if (cmd?.group !== undefined)
       (interaction as SlashCommandInteraction).data.options =
         (interaction as SlashCommandInteraction).data.options[0].options ?? []
