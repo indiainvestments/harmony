@@ -70,6 +70,7 @@ export class SlashClient extends HarmonyEventEmitter<SlashClientEvents> {
 
   constructor(options: SlashOptions) {
     super()
+    console.log("SlashClient constructor", options);
     let id = options.id
     if (options.token !== undefined) id = atob(options.token?.split('.')[0])
     if (id === undefined)
