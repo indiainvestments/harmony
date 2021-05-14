@@ -160,7 +160,7 @@ export class SlashClient extends HarmonyEventEmitter<SlashClientEvents> {
       handle.group = group
       handle.parent = sub === undefined ? undefined : root
     }
-
+    console.log("pushing handler in list", handle);
     this.handlers.push(handle as any)
     return this
   }
@@ -211,11 +211,13 @@ export class SlashClient extends HarmonyEventEmitter<SlashClientEvents> {
                 o.type === SlashCommandOptionType.SUB_COMMAND
             ) !== undefined
           : true
+      console.log("finding handlers", e.name, i.name);
       const nameMatched1 = e.name === i.name
       const parentMatched = hasGroupOrParent ? e.parent === i.name : true
       const nameMatched = hasGroupOrParent ? parentMatched : nameMatched1
 
       const matched = groupMatched && subMatched && nameMatched
+      console.log("finally matched or not", matched);
       return matched
     })
   }
@@ -225,7 +227,7 @@ export class SlashClient extends HarmonyEventEmitter<SlashClientEvents> {
     interaction: Interaction | SlashCommandInteraction
   ): Promise<void> {
     if (!this.enabled) return
-
+    console.log("now processing interaction in function", interaction, interaction.type);
     if (interaction.type !== InteractionType.APPLICATION_COMMAND) return
 
     const cmd =
@@ -238,10 +240,14 @@ export class SlashClient extends HarmonyEventEmitter<SlashClientEvents> {
       (interaction as SlashCommandInteraction).data.options =
         (interaction as SlashCommandInteraction).data.options[0].options ?? []
 
-    if (cmd === undefined) return
+    if (cmd === undefined) {
+      console.log("cmd undefined");
+      return
+    }
 
     await this.emit('interaction', interaction)
     try {
+      console.log("cmd calling cmd.handler");
       await cmd.handler(interaction as SlashCommandInteraction)
     } catch (e) {
       await this.emit('interactionError', e)

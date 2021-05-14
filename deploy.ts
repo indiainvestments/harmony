@@ -72,6 +72,8 @@ export function init(options: DeploySlashInitOptions): void {
     if (options.path !== undefined) {
       if (new URL(evt.request.url).pathname !== options.path) return
     }
+    console.log("==================================================================================");
+    console.log("inside callback with request", evt.request.headers, evt.request.method, evt.request.json);
     try {
       // we have to wrap because there are some weird scope errors
       const d = await client.verifyFetchEvent({
@@ -79,6 +81,7 @@ export function init(options: DeploySlashInitOptions): void {
         request: evt.request
       })
       if (d === false) {
+        console.log("not authorized");
         await evt.respondWith(
           new Response('Not Authorized', {
             status: 400
@@ -88,11 +91,12 @@ export function init(options: DeploySlashInitOptions): void {
       }
 
       if (d.type === InteractionType.PING) {
+        console.log("ping request");
         await d.respond({ type: InteractionResponseType.PONG })
         client.emit('ping')
         return
       }
-
+      console.log("now processing interaction");
       await (client as any)._process(d)
     } catch (e) {
       await client.emit('interactionError', e)
