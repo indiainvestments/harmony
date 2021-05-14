@@ -75,6 +75,7 @@ export function init(options: DeploySlashInitOptions): void {
     }
     console.log("==================================================================================");
     console.log("inside callback with request", evt.request.headers, evt.request.method, evt.request.json);
+    console.log("client handlers ready", client.getHandlers());
     try {
       // we have to wrap because there are some weird scope errors
       const d = await client.verifyFetchEvent({
@@ -100,6 +101,7 @@ export function init(options: DeploySlashInitOptions): void {
       console.log("now processing interaction");
       await (client as any)._process(d)
     } catch (e) {
+      console.log("some error in catch");
       await client.emit('interactionError', e)
     }
   }
@@ -132,7 +134,7 @@ export function init(options: DeploySlashInitOptions): void {
  * @param cmd Command to handle. Either Handler object or command name followed by handler function in next parameter.
  * @param handler Handler function (required if previous argument was command name)
  */
-export function handle(
+export function registerHandler(
   cmd: string | SlashCommandHandler,
   handler?: SlashCommandHandlerCallback
 ): void {
