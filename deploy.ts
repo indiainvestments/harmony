@@ -49,6 +49,7 @@ export function init(options: {
   path?: string
 }): void
 export function init(options: DeploySlashInitOptions): void {
+  console.log("init slash client");
   if (client !== undefined) throw new Error('Already initialized')
   if (options.env === true) {
     options.publicKey = Deno.env.get('PUBLIC_KEY')
@@ -135,6 +136,7 @@ export function handle(
   cmd: string | SlashCommandHandler,
   handler?: SlashCommandHandlerCallback
 ): void {
+  console.log("calling handle of command", cmd)
   if (client === undefined)
     throw new Error('Slash Client not initialized. Call `init` first')
   client.handle(cmd, handler)

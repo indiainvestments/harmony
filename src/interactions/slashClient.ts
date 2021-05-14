@@ -140,8 +140,11 @@ export class SlashClient extends HarmonyEventEmitter<SlashClientEvents> {
       ...(typeof cmd === 'string' ? {} : cmd)
     }
 
-    if (handle.handler === undefined)
+    if (handle.handler === undefined) {
+      console.log("handler.handler undefined");
       throw new Error('Invalid usage. Handler function not provided')
+    }
+      
 
     if (
       typeof handle.name === 'string' &&
@@ -149,6 +152,7 @@ export class SlashClient extends HarmonyEventEmitter<SlashClientEvents> {
       handle.parent === undefined &&
       handle.group === undefined
     ) {
+      console.log("no groupt thing");
       const parts = handle.name.split(/ +/).filter((e) => e !== '')
       if (parts.length > 3 || parts.length < 1)
         throw new Error('Invalid command name')
@@ -184,6 +188,7 @@ export class SlashClient extends HarmonyEventEmitter<SlashClientEvents> {
         })
       ]
     }
+    console.log("asked for handlers, sending handlers", res);
     return res
   }
 
