@@ -70,7 +70,6 @@ export class SlashClient extends HarmonyEventEmitter<SlashClientEvents> {
 
   constructor(options: SlashOptions) {
     super()
-    console.log("SlashClient constructor", options);
     let id = options.id
     if (options.token !== undefined) id = atob(options.token?.split('.')[0])
     if (id === undefined)
@@ -142,7 +141,6 @@ export class SlashClient extends HarmonyEventEmitter<SlashClientEvents> {
     }
 
     if (handle.handler === undefined) {
-      console.log("handler.handler undefined");
       throw new Error('Invalid usage. Handler function not provided')
     }
       
@@ -153,7 +151,6 @@ export class SlashClient extends HarmonyEventEmitter<SlashClientEvents> {
       handle.parent === undefined &&
       handle.group === undefined
     ) {
-      console.log("no groupt thing");
       const parts = handle.name.split(/ +/).filter((e) => e !== '')
       if (parts.length > 3 || parts.length < 1)
         throw new Error('Invalid command name')
@@ -165,7 +162,6 @@ export class SlashClient extends HarmonyEventEmitter<SlashClientEvents> {
       handle.group = group
       handle.parent = sub === undefined ? undefined : root
     }
-    console.log("pushing handler in list", handle);
     this.handlers.push(handle as any)
     return this
   }
@@ -189,7 +185,6 @@ export class SlashClient extends HarmonyEventEmitter<SlashClientEvents> {
         })
       ]
     }
-    console.log("asked for handlers, sending handlers", res);
     return res
   }
 
@@ -197,7 +192,6 @@ export class SlashClient extends HarmonyEventEmitter<SlashClientEvents> {
   private _getCommand(
     i: SlashCommandInteraction
   ): SlashCommandHandler | undefined {
-    console.log("checking for commands in handler");
     return this.getHandlers().find((e) => {
       const hasGroupOrParent = e.group !== undefined || e.parent !== undefined
       const groupMatched =
@@ -218,13 +212,11 @@ export class SlashClient extends HarmonyEventEmitter<SlashClientEvents> {
                 o.type === SlashCommandOptionType.SUB_COMMAND
             ) !== undefined
           : true
-      console.log("finding handlers", e.name, i.name);
       const nameMatched1 = e.name === i.name
       const parentMatched = hasGroupOrParent ? e.parent === i.name : true
       const nameMatched = hasGroupOrParent ? parentMatched : nameMatched1
 
       const matched = groupMatched && subMatched && nameMatched
-      console.log("finally matched or not", matched);
       return matched
     })
   }
@@ -234,14 +226,12 @@ export class SlashClient extends HarmonyEventEmitter<SlashClientEvents> {
     interaction: Interaction | SlashCommandInteraction
   ): Promise<void> {
     if (!this.enabled) return
-    console.log("now processing interaction in function", interaction, interaction.type);
     if (interaction.type !== InteractionType.APPLICATION_COMMAND) return
 
-    let cmd = this._getCommand(interaction as SlashCommandInteraction)
-    if (cmd === undefined) {
-      console.log("initial command search undefined, falling back to default error reply command", this.getHandlers());
-      cmd = this.getHandlers().find((e) => e.name === '*')
-    }
+    const cmd =
+      this._getCommand(interaction as SlashCommandInteraction) ??
+      this.getHandlers().find((e) => e.name === '*')
+
     if (cmd?.group !== undefined)
       (interaction as SlashCommandInteraction).data.options =
         (interaction as SlashCommandInteraction).data.options[0].options ?? []
@@ -249,14 +239,10 @@ export class SlashClient extends HarmonyEventEmitter<SlashClientEvents> {
       (interaction as SlashCommandInteraction).data.options =
         (interaction as SlashCommandInteraction).data.options[0].options ?? []
 
-    if (cmd === undefined) {
-      console.log("cmd undefined");
-      return
-    }
+    if (cmd === undefined) return;
 
     await this.emit('interaction', interaction)
     try {
-      console.log("cmd calling cmd.handler");
       await cmd.handler(interaction as SlashCommandInteraction)
     } catch (e) {
       await this.emit('interactionError', e)

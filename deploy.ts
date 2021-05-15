@@ -49,7 +49,6 @@ export function init(options: {
   path?: string
 }): void
 export function init(options: DeploySlashInitOptions): void {
-  console.log("init slash client");
   if (client !== undefined) throw new Error('Already initialized')
   if (options.env === true) {
     options.publicKey = Deno.env.get('PUBLIC_KEY')
@@ -73,9 +72,6 @@ export function init(options: DeploySlashInitOptions): void {
     if (options.path !== undefined) {
       if (new URL(evt.request.url).pathname !== options.path) return
     }
-    console.log("==================================================================================");
-    console.log("inside callback with request", evt.request.headers, evt.request.method, evt.request.json);
-    console.log("client handlers ready", client.getHandlers());
     try {
       // we have to wrap because there are some weird scope errors
       const d = await client.verifyFetchEvent({
@@ -83,7 +79,6 @@ export function init(options: DeploySlashInitOptions): void {
         request: evt.request
       })
       if (d === false) {
-        console.log("not authorized");
         await evt.respondWith(
           new Response('Not Authorized', {
             status: 400
@@ -93,15 +88,12 @@ export function init(options: DeploySlashInitOptions): void {
       }
 
       if (d.type === InteractionType.PING) {
-        console.log("ping request");
         await d.respond({ type: InteractionResponseType.PONG })
         client.emit('ping')
         return
       }
-      console.log("now processing interaction");
       await (client as any)._process(d)
     } catch (e) {
-      console.log("some error in catch");
       await client.emit('interactionError', e)
     }
   }
@@ -138,7 +130,6 @@ export function registerHandler(
   cmd: string | SlashCommandHandler,
   handler?: SlashCommandHandlerCallback
 ): void {
-  console.log("calling handle of command", cmd)
   if (client === undefined)
     throw new Error('Slash Client not initialized. Call `init` first')
   client.handle(cmd, handler)
