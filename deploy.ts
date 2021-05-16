@@ -92,7 +92,6 @@ export function init(options: DeploySlashInitOptions): void {
         client.emit('ping')
         return
       }
-
       await (client as any)._process(d)
     } catch (e) {
       await client.emit('interactionError', e)
@@ -127,7 +126,7 @@ export function init(options: DeploySlashInitOptions): void {
  * @param cmd Command to handle. Either Handler object or command name followed by handler function in next parameter.
  * @param handler Handler function (required if previous argument was command name)
  */
-export function handle(
+export function registerHandler(
   cmd: string | SlashCommandHandler,
   handler?: SlashCommandHandlerCallback
 ): void {

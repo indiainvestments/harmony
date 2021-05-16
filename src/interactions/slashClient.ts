@@ -140,8 +140,10 @@ export class SlashClient extends HarmonyEventEmitter<SlashClientEvents> {
       ...(typeof cmd === 'string' ? {} : cmd)
     }
 
-    if (handle.handler === undefined)
+    if (handle.handler === undefined) {
       throw new Error('Invalid usage. Handler function not provided')
+    }
+      
 
     if (
       typeof handle.name === 'string' &&
@@ -160,7 +162,6 @@ export class SlashClient extends HarmonyEventEmitter<SlashClientEvents> {
       handle.group = group
       handle.parent = sub === undefined ? undefined : root
     }
-
     this.handlers.push(handle as any)
     return this
   }
@@ -225,12 +226,12 @@ export class SlashClient extends HarmonyEventEmitter<SlashClientEvents> {
     interaction: Interaction | SlashCommandInteraction
   ): Promise<void> {
     if (!this.enabled) return
-
     if (interaction.type !== InteractionType.APPLICATION_COMMAND) return
 
     const cmd =
       this._getCommand(interaction as SlashCommandInteraction) ??
       this.getHandlers().find((e) => e.name === '*')
+
     if (cmd?.group !== undefined)
       (interaction as SlashCommandInteraction).data.options =
         (interaction as SlashCommandInteraction).data.options[0].options ?? []
@@ -238,7 +239,7 @@ export class SlashClient extends HarmonyEventEmitter<SlashClientEvents> {
       (interaction as SlashCommandInteraction).data.options =
         (interaction as SlashCommandInteraction).data.options[0].options ?? []
 
-    if (cmd === undefined) return
+    if (cmd === undefined) return;
 
     await this.emit('interaction', interaction)
     try {
