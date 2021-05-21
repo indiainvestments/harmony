@@ -69,6 +69,46 @@ export function init(options: DeploySlashInitOptions): void {
     respondWith: CallableFunction
     request: Request
   }): Promise<void> => {
+
+    if (new URL(evt.request.url).pathname === '/_ping') {
+      const cmd = Deno.run({
+        cmd: [
+          "git",
+          "rev-parse",
+          "--short",
+          "HEAD"
+        ],
+        stdout: "piped",
+        stderr: "piped",
+      });
+      const { code } = await cmd.status();
+
+      const rawOutput = await cmd.output();
+      const rawError = await cmd.stderrOutput();
+
+      if (code === 0) {
+        const output = new TextDecoder().decode(rawOutput);
+        const body = {
+          '__VERSION__': output
+        }
+        await evt.respondWith(
+          new Response(JSON.stringify(body), {
+            status: 200,
+            headers: { "content-type": "application/json" },
+          })
+        );
+        return;
+      } else {
+        const errorString = new TextDecoder().decode(rawError);
+        console.log(errorString);
+        await evt.respondWith(
+          new Response(null, {
+            status: 500
+          })
+        );
+        return;
+      }
+    }
     if (options.path !== undefined) {
       if (new URL(evt.request.url).pathname !== options.path) return
     }
