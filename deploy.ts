@@ -69,6 +69,23 @@ export function init(options: DeploySlashInitOptions): void {
     respondWith: CallableFunction
     request: Request
   }): Promise<void> => {
+
+    if (new URL(evt.request.url).pathname === '/__ping') {
+        const body = {
+          'timestamp': Date.now()
+        }
+        try {
+          await evt.respondWith(
+            new Response(JSON.stringify(body), {
+              status: 200,
+              headers: { "content-type": "application/json" },
+            })
+          );
+        } catch (err) {
+          console.log("Error sending __ping", err)
+        }
+        return;
+    }
     if (options.path !== undefined) {
       if (new URL(evt.request.url).pathname !== options.path) return
     }
