@@ -243,10 +243,8 @@ export class SlashClient extends HarmonyEventEmitter<SlashClientEvents> {
 
     await this.emit('interaction', interaction)
     try {
-      console.log("now starting interaction");
       await cmd.handler(interaction as SlashCommandInteraction)
     } catch (e) {
-      console.log("interaction erro", e);
       await this.emit('interactionError', e)
     }
   }
